@@ -1,4 +1,8 @@
 const gameContainer = document.getElementById("game");
+let card1 = null;
+let card2 = null;
+let cardsFlipped = 0;
+let noClicking = false;
 
 const COLORS = [
   "red",
@@ -58,9 +62,60 @@ function createDivsForColors(colorArray) {
 }
 
 // TODO: Implement this function!
-function handleCardClick(event) {
+function handleCardClick(e) {
   // you can use event.target to see which element was clicked
-  console.log("you just clicked", event.target);
+  console.log("you just clicked", e.target);
+
+  // Check if noClicking is true or if the clicked element already has the class "flipped."
+  // If either condition is true, exit the function.
+  if (noClicking) return;
+  if (e.target.classList.contains("flipped")) return;
+
+  // Save the clicked card element (e.target) in a variable called currentCard.
+  // Set the background color of the clicked card to its first class name.
+  let currentCard = e.target;
+  currentCard.style.backgroundColor = currentCard.classList[0];
+
+  // Check if either card1 or card2 is not set (clicked).
+  // If true, add the "flipped" class to the clicked card, 
+  // set card1 to the clicked card if card1 is not set, 
+  // and set card2 to the clicked card if card1 is already set.
+  if (!card1 || !card2) {
+    currentCard.classList.add("flipped");
+    card1 = card1 || currentCard;
+    card2 = currentCard === card1 ? null : currentCard;
+  }
+
+  // Check if both card1 and card2 are set.
+  // Temporarily disable further clicking.
+  // Check if the class names of card1 and card2 match.
+  // If they match, update the cardsFlipped count, reset card1 and card2 to null, and re-enable clicking.
+  // If they don't match, set a timeout function to reset the cards after 1000 milliseconds.
+  if (card1 && card2) {
+    noClicking = true;
+
+    const areCardsMatching = card1.className === card2.className;
+
+    if (areCardsMatching) {
+      cardsFlipped += 2;
+      card1 = null;
+      card2 = null;
+      noClicking = false;
+    } else {
+      setTimeout(function(){
+        card1.style.backgroundColor = "";
+        card2.style.backgroundColor = "";
+        card1.classList.remove("flipped");
+        card2.classList.remove("flipped");
+        card1 = null;
+        card2 = null;
+        noClicking = false;
+      },1500);
+    }
+  }
+
+  if (cardsFlipped === COLORS.length) alert("Game over!");  
+
 }
 
 // when the DOM loads
